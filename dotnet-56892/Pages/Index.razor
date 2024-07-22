@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNetCore.Components.Web 
+
+@page "/"
+
+<button @onclick="ClickHandler">Click me!</button>
+
+@if (_render)
+{
+    <TestComponent/>
+}
+
+@code {
+
+    bool _render = false;
+
+    void ClickHandler(MouseEventArgs _)
+    {
+        _render = !_render;
+    }
+}

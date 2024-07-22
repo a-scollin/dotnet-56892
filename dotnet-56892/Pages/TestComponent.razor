@@ -1,0 +1,42 @@
+@using Microsoft.JSInterop
+
+@implements IAsyncDisposable
+
+<div @ref="_eleRef">
+    Hello World
+</div>
+
+@code {
+
+    private ElementReference? _eleRef;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Initialized");
+        base.OnInitialized();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            if (_eleRef is null || _eleRef.Equals(default(ElementReference)))
+                throw new InvalidOperationException("Unset element reference!");
+
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./SomeInterop.js");
+
+            await module.InvokeVoidAsync("doThing", _eleRef);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        var module = await JS.InvokeAsync<IJSObjectReference>("import", "./SomeInterop.js");
+        await module.InvokeVoidAsync("doOtherThing", _eleRef);
+    }
+}
